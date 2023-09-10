@@ -10,7 +10,7 @@ app.listen(8080, ()=>{
 })
 
 const corsOptions = {
-    origin: '*',
+    origin: 'http://localhost:3000',
   
     methods: [
       'GET',
@@ -21,6 +21,7 @@ const corsOptions = {
       'Content-Type',
     ],
   };
+
 app.use(cors(corsOptions)) 
 app.use(express.json())
 app.use('/blogs', blogRouting)
