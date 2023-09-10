@@ -9,11 +9,18 @@ app.listen(8080, ()=>{
     console.log("Server Started at port 8080....")
 })
 
-const corsOptions ={
-   origin:'*', 
-   credentials:true,
-   optionSuccessStatus:200,
-}
+const corsOptions = {
+    origin: '*',
+  
+    methods: [
+      'GET',
+      'POST',
+    ],
+  
+    allowedHeaders: [
+      'Content-Type',
+    ],
+  };
 app.use(cors(corsOptions)) 
 app.use(express.json())
 app.use('/blogs', blogRouting)
