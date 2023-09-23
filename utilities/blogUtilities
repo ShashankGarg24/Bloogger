@@ -1,0 +1,11 @@
+
+const readingSpeedInWPM = 265.0
+
+function calculateReadingTimeForBlog(blogTitle, blogContent){
+    const cumulativeText = blogTitle + blogContent;
+    const wordCount = cumulativeText.split(" ").length
+    const readingTimeForTextInMinutes = wordCount/readingSpeedInWPM;
+    return Math.ceil(readingTimeForTextInMinutes);
+}
+
+module.exports = {calculateReadingTimeForBlog}

@@ -1,14 +1,38 @@
 const mongoose = require('mongoose')
 
 const blogSchema = new mongoose.Schema({
-    blogName: {
+    // blogTitle: {
+    //     type: String,
+    //     required: true
+    // },
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+
+    blogContent: {
         type: String,
         required: true
     },
-    author: {
+    likes: [{
+        type: String
+    }],
+    publishedDateTime: {
         type: String,
         required: false,
-        default: "none"
+        default: new Date().toISOString()
+    },
+    readingTime: {
+        type: String,
+        required: false,
+        default: "0 min"
+    },
+    tags: [{
+        type: String
+    }],
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BlogCategory'
     }
 })
 
