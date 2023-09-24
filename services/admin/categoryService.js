@@ -6,7 +6,7 @@ const User = require('../../models/User')
 const { removeImgTagsFromBlogContent } = require('../../utilities/blogUtilities')
 const router = express.Router()
 
-router.get('/', async (req, res)=>{
+router.get('/all', async (req, res)=>{
     try{
         const categories = await blogCategory.find().sort({categoryName:1})
         res.status(200).json(categories)
