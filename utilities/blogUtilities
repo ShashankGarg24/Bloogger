@@ -1,3 +1,5 @@
+const Blog = require("../models/Blog");
+const User = require("../models/User");
 
 const readingSpeedInWPM = 265.0
 
@@ -8,4 +10,52 @@ function calculateReadingTimeForBlog(blogTitle, blogContent){
     return Math.ceil(readingTimeForTextInMinutes);
 }
 
-module.exports = {calculateReadingTimeForBlog}
+async function getBlogsForCardsFrom(blogIdList){
+    var blogs = []
+    await Promise.all(blogIdList.map(async (blogId) => {
+        console.log(blogId)
+        const blog = await Blog.findById(blogId)
+        console.log(blog)
+        if(blog != null){
+            const titleImage = await extractImagesFromContent(blog.blogContent)
+            const author = await User.findById(blog.author)
+            const _blog = {
+                authorId: author._id,
+                authorName: author.firstName + " " + author.lastName,
+                blogId: blog._id,
+                likes: blog.likes.length,
+                readTime: blog.readingTime,
+                titleImage: titleImage,
+                content: await removeImgTagsFromBlogContent(blog.blogContent),
+                publishedDate: blog.publishedDateTime
+            }
+            blogs.push(_blog)
+        }
+      }));
+
+    return blogs
+}
+
+async function removeImgTagsFromBlogContent(content) {
+    if ((content===null) || (content==='')){
+        return false;
+    }   
+    else{
+        content = content.toString();
+    }    
+
+    const contentWithoutImgTags = content.replace(/<img[^>]*>/g, '')
+    return contentWithoutImgTags;
+}
+
+async function extractImagesFromContent(content){
+    let imageTagStr = content.match(/<img\s+[^>]*src="([^"]*)"[^>]*>/i);
+    return imageTagStr;
+}
+
+async function extractTitleFromContent(content){
+    let title = content.match(/(<h1.*?>.*?<\/h1>)/);
+    return title[0];
+}
+
+module.exports = {calculateReadingTimeForBlog, removeImgTagsFromBlogContent, extractImagesFromContent, getBlogsForCardsFrom, extractTitleFromContent}

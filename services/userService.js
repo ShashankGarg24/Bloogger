@@ -1,12 +1,35 @@
 const express = require('express')
 const router = express.Router()
-const jwt = require('jsonwebtoken')
-const {jwtAuth} = require('../middlewares/jwtAuth')
+const {jwtAuth, getUserFromAuth} = require('../middlewares/jwtAuth')
 const user = require('../models/User')
+const User = require('../models/User')
+const { getBlogsForCardsFrom } = require('../utilities/blogUtilities')
 
-router.get('/', jwtAuth, async (req, res)=>{
+
+
+router.get('/bookmarks', jwtAuth, async (req, res)=>{
+    console.log("GEt bookmarks")
     try{
-        return res.status(200).send(req.user)
+        const user = await User.findById(req.user._id)
+        var blogs = await getBlogsForCardsFrom(user.bookmarks)
+        console.log(blogs)
+        return res.status(200).send(blogs)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(400).send("Service Unavailable")
+    }
+})
+
+router.get('/myBlogs', jwtAuth, async (req, res)=>{
+    console.log("GEt my blogs")
+
+    try{
+        console.log("Hit")
+        const user = await User.findById(req.user._id)
+        var blogs = await getBlogsForCardsFrom(user.blogs)
+        console.log(blogs)
+        return res.status(200).send(blogs)
     }
     catch(err){
         console.log(err)
@@ -15,13 +38,35 @@ router.get('/', jwtAuth, async (req, res)=>{
 })
 
 router.get('/:id', async (req, res)=>{
-    const userid = req.params.id
+    console.log("GEt user")
+    const isHeaderPresent = req.get("isHeaderPresent")
+    const bearerToken = req.get("header")
+    const userId = req.params.id
     try{
-        const _user = await user.findById(userid)
-        if(!_user){
-            return res.status(404).send("No user found")
+        var isLocalUserLoggedIn = false;
+        console.log(userId)
+        var user = await User.findById(userId)
+        console.log(user)
+
+        if(!user){
+            return res.status(404).send("No User Found")
         }
-        return res.status(200).send(_user)
+        if(isHeaderPresent){
+            const _user = await getUserFromAuth(bearerToken)
+            const _userId = _user?._id.valueOf()
+            if(userId == _userId){
+                console.log("In")
+                isLocalUserLoggedIn = true;
+                user = _user
+            }
+        }
+
+        const userResp = {
+            user: user,
+            isLocalUserLoggedIn: isLocalUserLoggedIn
+        }
+        console.log(userResp)
+        return res.status(200).send(userResp)
     }
     catch(err){
         console.log(err)

@@ -2,11 +2,17 @@ const jwt = require('jsonwebtoken')
 const jwtConstants = require('../constants/jwtConstants')
 const user = require('../models/User')
  
-const getUserFromAuth = (authHeader)=>{
+const getUserFromAuth = async (authHeader)=>{
     const token = authHeader.split(" ")[1]
     const _user = jwt.verify(token, jwtConstants.ACCESS_TOKEN_SECRET)
-
-    return _user
+    if(_user == null){
+        return res.status(404).send("Token error")
+    }
+    const userObj = await user.findById(_user._id)
+    if(userObj == null){
+        return res.status(404).send("User Not Found")
+    }
+    return userObj
 }
 
 const jwtAuth = async (req, res, next) => {
@@ -14,15 +20,8 @@ const jwtAuth = async (req, res, next) => {
         const authHeader = req.get("Authorization")
         console.log(authHeader)
         if(authHeader && authHeader.startsWith("Bearer ")){
-            const _user = getUserFromAuth(authHeader)
-            if(_user == null){
-                return res.status(404).send("Token error")
-            }
-            const userObj = await user.findById(_user._id)
-            if(userObj == null){
-                return res.status(404).send("User Not Found")
-            }
-            req.user = userObj
+            var _user = await getUserFromAuth(authHeader)
+            req.user = _user
             next()
         }
     }catch(err){

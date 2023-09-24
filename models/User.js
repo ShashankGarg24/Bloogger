@@ -27,6 +27,14 @@ const userSchema = new mongoose.Schema({
     otp: {
         type: String,
     },
+    bookmarks: [{
+        type: String,
+    }],
+    blogs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Blog'
+    }]
+
 })
 
 module.exports = mongoose.model('User', userSchema)

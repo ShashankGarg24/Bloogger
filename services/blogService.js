@@ -3,6 +3,9 @@ const Blog = require('../models/Blog')
 const blogUtils = require('../utilities/blogUtilities')
 const BlogCategory = require('../models/BlogCategory')
 const { getUserFromAuth, jwtAuth } = require('../middlewares/jwtAuth')
+const User = require('../models/User')
+const { extractTitleFromContent } = require('../utilities/blogUtilities')
+const { getBlogsForCardsFrom } = require('../utilities/blogUtilities')
 
 
 const router = express.Router()
@@ -29,15 +32,24 @@ router.get('/:id', async(req, res)=>{
         if(blog == null){
             return res.status(404).json("Blog not available")
         }
+        const authorId = blog.author
+        const author = await User.findById(authorId)
+        const authorName = author.firstName + " " + author.lastName
+
         var isLikedByCurrentUser = false;
+        var isBookmarkedByCurrentUser = false;
         if(isHeaderPresent){
-            const _user = getUserFromAuth(bearerToken)
-            const userId = _user?._id
+            const _user = await getUserFromAuth(bearerToken)
+            const userId = _user?._id.valueOf()
             if(userId && blog.likes.includes(userId)){
                 isLikedByCurrentUser = true;
             }
+
+            if(blogId && _user.bookmarks.includes(blogId)){
+                isBookmarkedByCurrentUser = true;
+            }
         }
-        blog = {...blog, isLikedByCurrentUser: isLikedByCurrentUser}
+        blog = {...blog, isLikedByCurrentUser: isLikedByCurrentUser, isBookmarkedByCurrentUser: isBookmarkedByCurrentUser, authorId: authorId, authorName: authorName}
         console.log(blog)
         res.status(200).json(blog)
     }catch(err){
@@ -49,7 +61,7 @@ router.get('/:id', async(req, res)=>{
 router.post('/', jwtAuth, async(req, res)=>{
     
     try{    
-        const _category = await BlogCategory.findOne({categoryName: req.body.category})
+        var _category = await BlogCategory.findOne({categoryName: req.body.category})
         console.log(_category)
 
         if(_category == null){
@@ -60,7 +72,7 @@ router.post('/', jwtAuth, async(req, res)=>{
         const dateTime = new Date().toLocaleDateString([],dateOptions);
 
         const blog = new Blog({
-            // blogTitle: req.body.title,
+            blogTitle: await extractTitleFromContent(req.body.content),
             author: req.user,
             blogContent: req.body.content,
             readingTime: blogUtils.calculateReadingTimeForBlog(req.body.title, req.body.content) + " min",
@@ -73,6 +85,11 @@ router.post('/', jwtAuth, async(req, res)=>{
         const updatedCategory = {..._category, blog: updatedCategoryBlogs}
         await BlogCategory.findByIdAndUpdate(_category._id, updatedCategory)
         const _blog = await blog.save()
+
+        const _user = await User.findById(req.user._id)
+        var userBlogs = _user.blogs
+        userBlogs.push(_blog)
+        await User.findByIdAndUpdate(_user._id, {blogs: userBlogs})
             
         res.status(201)
         .send(_blog._id)
@@ -85,24 +102,66 @@ router.post('/', jwtAuth, async(req, res)=>{
 })
 
 router.post('/like-unlike', jwtAuth, async(req, res)=>{
-    const blog = await Blog.findById(req.body.blogId)
-    var message = null
-    if(blog){
-        const userId = req.user._id
-        const userLikes = blog.likes
-        if(userLikes.includes(userId)){
-            const index = userLikes.indexOf(userId)
-            userLikes.splice(index, 1)
-            message = "Blog Unliked"
-        }else{
-            userLikes.push(userId)
-            message = "Blog liked"
+    try{
+        const blog = await Blog.findById(req.body.blogId)
+        var message = null
+        if(blog){
+            const userId = req.user._id
+            var userLikes = blog.likes
+            if(userLikes.includes(userId)){
+                const index = userLikes.indexOf(userId)
+                userLikes.splice(index, 1)
+                message = "Blog Unliked"
+            }else{
+                userLikes.push(userId)
+                message = "Blog liked"
+            }
+            await Blog.findByIdAndUpdate(blog._id, {likes: userLikes})
         }
-        await Blog.findByIdAndUpdate(blog._id, {likes: userLikes})
-    }
 
-    console.log("End")
-    return res.status(200).send(message)
+        console.log("End")
+        return res.status(200).send(message)
+    }catch(err){
+        res.status(400).send("Error in liking/unliking the blog")
+        console.log(err)
+    }
+})
+
+router.post('/bookmark-unbookmark', jwtAuth, async(req, res)=>{
+    try{
+        const blog = await Blog.findById(req.body.blogId)
+        var message = null
+        if(blog){
+            var bookmarks = req.user.bookmarks
+            if(bookmarks.includes(blog._id)){
+                const index = bookmarks.indexOf(blog._id)
+                bookmarks.splice(index, 1)
+                message = "Blog Unbookmarked"
+            }else{
+                bookmarks.push(blog._id)
+                message = "Blog Bookmarked"
+            }
+            const up = await User.findByIdAndUpdate(req.user._id, {bookmarks: bookmarks})
+            console.log(up)
+        }
+
+        return res.status(200).send(message)
+    }catch(err){
+        res.status(400).send("Error in bookmarking/unbookmarking blog")
+        console.log(err)
+    }
+})
+
+router.get('/search/:key', async(req, res)=>{
+    try{
+        const searchKey = req.params.key
+        var searchResults = await Blog.find({blogTitle: new RegExp(searchKey, 'i')})
+        searchResults = await getBlogsForCardsFrom(searchResults)
+        return res.status(200).send(searchResults)
+    }catch(err){
+        res.status(400).send("Error in searching blog")
+        console.log(err)
+    }
 })
 
 router.delete('/:id', async(req,res) =>{

@@ -1,11 +1,14 @@
 const express = require('express')
 const blogCategory = require('../../models/BlogCategory')
 const Blog = require('../../models/Blog')
+const { extractImagesFromContent } = require('../../utilities/blogUtilities')
+const User = require('../../models/User')
+const { removeImgTagsFromBlogContent } = require('../../utilities/blogUtilities')
 const router = express.Router()
 
 router.get('/', async (req, res)=>{
     try{
-        const categories = await blogCategory.find()
+        const categories = await blogCategory.find().sort({categoryName:1})
         res.status(200).json(categories)
     }catch(err){
         res.status(400).send('Unable to fetch categories..')
@@ -15,8 +18,6 @@ router.get('/', async (req, res)=>{
 
 router.get('/:id', async (req, res)=>{
     try{
-        console.log("Start")
-
         const category = await blogCategory.findById(req.params.id)
         if(category == null){
             return res.status(404).json("Category not available")
@@ -25,35 +26,25 @@ router.get('/:id', async (req, res)=>{
         var blogs = []
         await Promise.all(category.blogs.map(async (blogId) => {
             const blog = await Blog.findById(blogId)
-            console.log(">>>>"+blog)
             if(blog != null){
+                const titleImage = await extractImagesFromContent(blog.blogContent)
+                const author = await User.findById(blog.author)
                 const categoryBlog = {
-                    author: blog.author,
+                    authorId: author._id,
+                    authorName: author.firstName + " " + author.lastName,
+                    blogId: blog._id,
                     likes: blog.likes.length,
                     readTime: blog.readingTime,
-                    content: blog.blogContent.substring(50)+"....",
+                    titleImage: titleImage,
+                    content: await removeImgTagsFromBlogContent(blog.blogContent),
+                    // content: blog.blogContent,
                     publishedDate: blog.publishedDateTime
                 }
                 blogs.push(categoryBlog)
             }
           }));
 
-        // await category.blogs.forEach(async (blogId) => {
-        //     const blog = await Blog.findById(blogId)
-        //     console.log(">>>>"+blog)
-        //     if(blog != null){
-        //         const categoryBlog = {
-        //             author: blog.author,
-        //             likes: blog.likes.length,
-        //             readTime: blog.readingTime,
-        //             publishedDate: blog.publishedDateTime
-        //         }
-        //         blogs.push(categoryBlog)
-        //     }
-        // });
-        console.log("Start")
         console.log(blogs)
-        console.log("End")
         return res.status(200).send(blogs)
     }catch(err){
         console.log(err)

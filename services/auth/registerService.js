@@ -37,8 +37,13 @@ router.post('/', async (req, res)=>{
             name: firstName+" "+lastName,
             OTP: signUpOtp,
         })
+
+        const registerMessage = {
+            message: "User Created successfully",
+            userId: _user._id
+        }
     
-        return res.status(201).send("User Created successfully")
+        return res.status(201).send(registerMessage)
     }catch(err){
         console.log(err)
         return res.status(400).send(err)
