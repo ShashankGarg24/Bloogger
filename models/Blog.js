@@ -20,7 +20,6 @@ const blogSchema = new mongoose.Schema({
     publishedDateTime: {
         type: String,
         required: false,
-        default: new Date().toISOString()
     },
     readingTime: {
         type: String,
@@ -33,7 +32,11 @@ const blogSchema = new mongoose.Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'BlogCategory'
-    }
+    },
+    comments:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment'
+    }]
 })
 
 module.exports = mongoose.model('Blog', blogSchema)

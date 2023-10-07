@@ -6,6 +6,8 @@ const { getUserFromAuth, jwtAuth } = require('../middlewares/jwtAuth')
 const User = require('../models/User')
 const { extractTitleFromContent } = require('../utilities/blogUtilities')
 const { getBlogsForCardsFrom } = require('../utilities/blogUtilities')
+const { sendNotificationToUser } = require('../config/socket')
+const Comment = require('../models/Comment')
 
 
 const router = express.Router()
@@ -114,12 +116,13 @@ router.post('/like-unlike', jwtAuth, async(req, res)=>{
                 message = "Blog Unliked"
             }else{
                 userLikes.push(userId)
+                const _user = await User.findById(userId);
+                sendNotificationToUser(_user.firstName + " " + _user.lastName, blog.author, blog._id, 1)
                 message = "Blog liked"
             }
             await Blog.findByIdAndUpdate(blog._id, {likes: userLikes})
         }
 
-        console.log("End")
         return res.status(200).send(message)
     }catch(err){
         res.status(400).send("Error in liking/unliking the blog")
@@ -164,10 +167,40 @@ router.get('/search/:key', async(req, res)=>{
     }
 })
 
-router.delete('/:id', async(req,res) =>{
-    const blogId = req.params.id
-    const deletedBlog = await Blog.findByIdAndDelete(blogId)
-    res.send("Blog deleted")
+router.delete('/delete/:id', jwtAuth, async(req,res) =>{
+    try{
+        const blogId = req.params.id
+        const blog = await Blog.findById(blogId)
+        const user = await User.findById(req.user._id)
+    
+        if(JSON.stringify(blog.author) !== JSON.stringify(user._id)){
+            console.log(blog.author, user._id)
+            return res.status(403).send("Access Denied")
+        }
+        const userId = JSON.stringify(blog.author)
+        const category = await BlogCategory.findById(blog.category)
+        console.log(blog, category, user)
+        await User.updateOne({_id: user._id},{
+            $pull:{
+                blogs:blogId
+            }
+        })
+        await BlogCategory.updateOne({_id: category._id},{
+            $pull:{
+                blogs:blogId
+            }
+        })
+        await Promise.all(blog.comments.map(async (commentId) => {
+            console.log(commentId)
+            await Comment.findByIdAndDelete(commentId)
+        }));
+        await Blog.findByIdAndDelete(blogId)
+        res.status(200).send("Blog deleted")
+    }catch(err){
+        res.status(400).send("Error in deleting blog")
+        console.log(err)
+    }
+    
 })
 
 module.exports = router

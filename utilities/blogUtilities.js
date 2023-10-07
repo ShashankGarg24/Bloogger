@@ -26,7 +26,7 @@ async function getBlogsForCardsFrom(blogIdList){
                 likes: blog.likes.length,
                 readTime: blog.readingTime,
                 titleImage: titleImage,
-                content: await removeImgTagsFromBlogContent(blog.blogContent),
+                content: await removeTagsFromBlogContent(blog.blogContent),
                 publishedDate: blog.publishedDateTime
             }
             blogs.push(_blog)
@@ -36,7 +36,7 @@ async function getBlogsForCardsFrom(blogIdList){
     return blogs
 }
 
-async function removeImgTagsFromBlogContent(content) {
+async function removeTagsFromBlogContent(content) {
     if ((content===null) || (content==='')){
         return false;
     }   
@@ -44,8 +44,8 @@ async function removeImgTagsFromBlogContent(content) {
         content = content.toString();
     }    
 
-    const contentWithoutImgTags = content.replace(/<img[^>]*>/g, '')
-    return contentWithoutImgTags;
+    const contentWithoutTags = content.replace(/<[^>]*>/g, '')
+    return contentWithoutTags;
 }
 
 async function extractImagesFromContent(content){
@@ -58,4 +58,4 @@ async function extractTitleFromContent(content){
     return title[0];
 }
 
-module.exports = {calculateReadingTimeForBlog, removeImgTagsFromBlogContent, extractImagesFromContent, getBlogsForCardsFrom, extractTitleFromContent}
+module.exports = {calculateReadingTimeForBlog, removeImgTagsFromBlogContent: removeTagsFromBlogContent, extractImagesFromContent, getBlogsForCardsFrom, extractTitleFromContent}

@@ -6,8 +6,9 @@ const categoryRouting = require('./services/admin/categoryService')
 const loginService = require('./services/auth/loginService')
 const registerService = require('./services/auth/registerService')
 const userService = require('./services/userService')
+const commentRouting = require('./services/commentService')
 const db = require('./config/db');
-const { jwtAuth } = require('./middlewares/jwtAuth');
+const socket = require('./config/socket');
 const app = express()
 
 
@@ -28,3 +29,4 @@ app.use('/login', loginService)
 app.use('/blogs', blogRouting)
 app.use('/account', userService)
 app.use('/admin/category', categoryRouting)
+app.use('/comment', commentRouting)
