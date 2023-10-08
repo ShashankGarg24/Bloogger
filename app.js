@@ -10,8 +10,6 @@ const commentRouting = require('./services/commentService')
 const db = require('./config/db');
 const socket = require('./config/socket');
 const app = express()
-
-const express = require("express");
 const http = require("http");
 
 const server = http.createServer(app);
