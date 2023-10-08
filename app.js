@@ -8,7 +8,6 @@ const registerService = require('./services/auth/registerService')
 const userService = require('./services/userService')
 const commentRouting = require('./services/commentService')
 const db = require('./config/db');
-const socket = require('./config/socket');
 const app = express()
 const http = require("http");
 const server = http.createServer(app);
