@@ -13,8 +13,7 @@ const server = http.createServer(app);
 const io = require("socket.io")(server, {
     cors: {
       origin: "https://blooggerr.netlify.app/",
-      methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
-      credentialS: true
+      methods: ["GET", "POST", "PATCH", "PUT", "DELETE"]
     }
    
 });
