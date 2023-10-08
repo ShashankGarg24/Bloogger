@@ -1,5 +1,5 @@
 var onlineUserDictionary = {}
- 
+ const app = require("../app")
  const addOnlineUser =(userId, socketId)=>{
    console.log("New user added to socket")
    onlineUserDictionary[userId] = socketId
@@ -12,11 +12,12 @@ const getOnlineUser =(userId)=>{
 const deleteOnlineUser =(userId)=>{
    delete onlineUserDictionary[userId]
 }
-io.on("connection", (socket) => {
+
+app.io.on("connection", (socket) => {
  socket.on("addNewOnlineUser", (userId)=>{
    addOnlineUser(userId, socket.id)
    console.log(onlineUserDictionary)
-   io.to(socket.id).emit("greet", "You are connected " + userId)
+   app.io.to(socket.id).emit("greet", "You are connected " + userId)
  })
  socket.on("disconnect", (userId)=>{
    deleteOnlineUser(userId)
@@ -28,7 +29,7 @@ io.on("connection", (socket) => {
 
 const sendNotificationToUser = (senderId, receiverId, blogId, type) =>{
    if(senderId, receiverId, blogId){
-       io.to(onlineUserDictionary[receiverId]).emit("notifications", ({senderId, blogId, type}))
+       app.io.to(onlineUserDictionary[receiverId]).emit("notifications", ({senderId, blogId, type}))
    }
 }
 
