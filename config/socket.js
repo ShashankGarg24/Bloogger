@@ -3,8 +3,8 @@ var onlineUserDictionary = {}
 
 const io = new Server(5000, { 
     cors:{
-        origin:"https://blooggerr.netlify.app/*",
-        origin:"https://blooggerr.onrender.com/*"
+        origin: ["https://blooggerr.netlify.app/*", "https://blooggerr.onrender.com/*"],
+        credentials: true
 
     }
  });
