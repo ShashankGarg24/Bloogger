@@ -73,4 +73,4 @@ app.use('/blogs/comment', commentRouting)
 app.use('/blogs', blogRouting)
 app.use('/account', userService)
 app.use('/admin/category', categoryRouting)
-module.exports = {onlineUserDictionary, sendNotificationToUser}
+exports.sendNotificationToUser = sendNotificationToUser
