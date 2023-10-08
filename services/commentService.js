@@ -3,7 +3,7 @@ const Blog = require('../models/Blog')
 const Comment = require('../models/Comment')
 const { jwtAuth } = require('../middlewares/jwtAuth')
 const User = require('../models/User')
-const { sendNotificationToUser } = require('../config/socket')
+const { sendNotificationToUser } = require('../app')
 const router = express.Router()
 
 

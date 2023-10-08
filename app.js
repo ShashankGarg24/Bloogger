@@ -11,8 +11,8 @@ const db = require('./config/db');
 const socket = require('./config/socket');
 const app = express()
 const http = require("http");
-
 const server = http.createServer(app);
+var onlineUserDictionary = {}
 
 const io = require("socket.io")(server, {
     cors: {
@@ -22,7 +22,15 @@ const io = require("socket.io")(server, {
    
 });
 
- var onlineUserDictionary = {}
+server.listen(8080, ()=>{
+    console.log("Server Started at port 8080....")
+})
+
+const corsOptions ={
+   origin:'*', 
+   credentials:true,
+   optionSuccessStatus:200,
+}
 
  const addOnlineUser =(userId, socketId)=>{
     console.log("New user added to socket")
@@ -56,17 +64,6 @@ const sendNotificationToUser = (senderId, receiverId, blogId, type) =>{
     }
  }
 
-
-
-server.listen(8080, ()=>{
-    console.log("Server Started at port 8080....")
-})
-
-const corsOptions ={
-   origin:'*', 
-   credentials:true,
-   optionSuccessStatus:200,
-}
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
@@ -76,3 +73,4 @@ app.use('/blogs', blogRouting)
 app.use('/account', userService)
 app.use('/admin/category', categoryRouting)
 app.use('/comment', commentRouting)
+module.exports = {onlineUserDictionary, sendNotificationToUser}

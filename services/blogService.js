@@ -6,7 +6,7 @@ const { getUserFromAuth, jwtAuth } = require('../middlewares/jwtAuth')
 const User = require('../models/User')
 const { extractTitleFromContent } = require('../utilities/blogUtilities')
 const { getBlogsForCardsFrom } = require('../utilities/blogUtilities')
-const { sendNotificationToUser } = require('../config/socket')
+const { sendNotificationToUser } = require('../app')
 const Comment = require('../models/Comment')
 
 
