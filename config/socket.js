@@ -1,13 +1,14 @@
-const { Server } = require("socket.io");
-var onlineUserDictionary = {}
-
-const io = new Server(5000, { 
+var express = require("express"),
+app = express(),
+server = require('http').createServer(app),
+io = require("socket.io")(server, { 
     cors:{
-        origin: ["https://blooggerr.netlify.app/*", "https://blooggerr.onrender.com/*"],
+        origin: "*",
         credentials: true
-
     }
  });
+
+ var onlineUserDictionary = {}
 
  const addOnlineUser =(userId, socketId)=>{
     console.log("New user added to socket")
