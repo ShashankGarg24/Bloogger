@@ -1,13 +1,9 @@
 var express = require("express"),
 app = express(),
 server = require('http').createServer(app),
-io = require("socket.io")(server, { 
-    cors:{
-        origin: "*",
-        credentials: true
-    }
- }).listen(server);
- server.listen(3000)
+io = require("socket.io").listen(server);
+io.origins("*:*")
+server.listen(3000)
 
  var onlineUserDictionary = {}
 
