@@ -3,7 +3,7 @@ const Blog = require('../models/Blog')
 const Comment = require('../models/Comment')
 const { jwtAuth } = require('../middlewares/jwtAuth')
 const User = require('../models/User')
-const app  = require('../app')
+const sendNotificationToUser  = require('../config/socket')
 const router = express.Router()
 
 
@@ -51,7 +51,7 @@ router.post('/:blogId', jwtAuth, async(req, res)=>{
         var blogComments = blog.comments
         blogComments.push(postedComment);
         await Blog.findByIdAndUpdate(blog._id, {comments: blogComments});
-        app.sendNotificationToUser(user.firstName + " " + user.lastName, blog.author, blog._id, 2)
+        sendNotificationToUser(user.firstName + " " + user.lastName, blog.author, blog._id, 2)
         return res.status(200).send(postedComment);
     }catch(err){
         return res.status(400).send("Unable to post comment");

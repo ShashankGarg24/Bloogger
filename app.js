@@ -12,7 +12,6 @@ const socket = require('./config/socket');
 const app = express()
 const http = require("http");
 const server = http.createServer(app);
-var onlineUserDictionary = {}
 
 const io = require("socket.io")(server, {
     cors: {
@@ -32,38 +31,6 @@ const corsOptions ={
    optionSuccessStatus:200,
 }
 
- const addOnlineUser =(userId, socketId)=>{
-    console.log("New user added to socket")
-    onlineUserDictionary[userId] = socketId
- }
-
- const getOnlineUser =(userId)=>{
-    return onlineUserDictionary[userId]
- }
-
- const deleteOnlineUser =(userId)=>{
-    delete onlineUserDictionary[userId]
- }
-io.on("connection", (socket) => {
-  socket.on("addNewOnlineUser", (userId)=>{
-    addOnlineUser(userId, socket.id)
-    console.log(onlineUserDictionary)
-    io.to(socket.id).emit("greet", "You are connected " + userId)
-  })
-  socket.on("disconnect", (userId)=>{
-    deleteOnlineUser(userId)
-    console.log(onlineUserDictionary)
-    console.log("bye")
-  })
-});
-
-
-const sendNotificationToUser = (senderId, receiverId, blogId, type) =>{
-    if(senderId, receiverId, blogId){
-        io.to(onlineUserDictionary[receiverId]).emit("notifications", ({senderId, blogId, type}))
-    }
- }
-
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
@@ -73,4 +40,4 @@ app.use('/blogs/comment', commentRouting)
 app.use('/blogs', blogRouting)
 app.use('/account', userService)
 app.use('/admin/category', categoryRouting)
-module.exports = {onlineUserDictionary, sendNotificationToUser}
+module.exports = {io}
