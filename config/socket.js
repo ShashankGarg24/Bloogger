@@ -6,7 +6,8 @@ io = require("socket.io")(server, {
         origin: "*",
         credentials: true
     }
- });
+ }).listen(server);
+ server.listen(3000)
 
  var onlineUserDictionary = {}
 
