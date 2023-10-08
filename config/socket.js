@@ -1,9 +1,27 @@
-var express = require("express"),
-app = express(),
-server = require('http').createServer(app),
-io = require("socket.io").listen(server);
-io.origins("*:*")
-server.listen(3000)
+// var express = require("express"),
+// app = express(),
+// server = require('http').createServer(app),
+// io = require("socket.io").listen(server);
+// io.origins("*:*")
+// server.listen(3000)
+import express from "express";
+import http from "http";
+
+const app = express();
+const server = http.createServer(app);
+
+const io = require("socket.io")(server, {
+    handlePreflightRequest: (req, res) => {
+        const headers = {
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Origin": req.headers.origin, 
+            "Access-Control-Allow-Credentials": true
+        };
+        res.writeHead(200, headers);
+        res.end();
+    }
+});
+
 
  var onlineUserDictionary = {}
 
