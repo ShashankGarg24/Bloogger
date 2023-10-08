@@ -22,7 +22,7 @@ const io = require("socket.io")(server, {
     }
 });
 
-
+server.listen(3000)
  var onlineUserDictionary = {}
 
  const addOnlineUser =(userId, socketId)=>{
