@@ -9,7 +9,7 @@ const { getBlogsForCardsFrom } = require('../utilities/blogUtilities')
 const {sendNotificationToUser}  = require('../app')
 const Comment = require('../models/Comment')
 const events = require('events');
-export const eventEmitter = new events.EventEmitter();
+const eventEmitter = new events.EventEmitter();
 
 
 const router = express.Router()
@@ -206,4 +206,4 @@ router.delete('/delete/:id', jwtAuth, async(req,res) =>{
     
 })
 
-module.exports = router
+module.exports = {router, eventEmitter}
