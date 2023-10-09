@@ -51,7 +51,9 @@ router.post('/:blogId', jwtAuth, async(req, res)=>{
         var blogComments = blog.comments
         blogComments.push(postedComment);
         await Blog.findByIdAndUpdate(blog._id, {comments: blogComments});
-        eventEmitter.emit('sendCommentNotification', user.firstName + " " + user.lastName, blog.author, blog._id, 2);
+        if(JSON.stringify(user._id) != JSON.stringify(blog.author)){
+            eventEmitter.emit('sendCommentNotification', user.firstName + " " + user.lastName, blog.author, blog._id, 2);
+        }        
         // sendNotificationToUser(user.firstName + " " + user.lastName, blog.author, blog._id, 2)
         return res.status(200).send(postedComment);
     }catch(err){
