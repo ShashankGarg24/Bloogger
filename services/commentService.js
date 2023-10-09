@@ -53,11 +53,11 @@ router.post('/:blogId', jwtAuth, async(req, res)=>{
         await Blog.findByIdAndUpdate(blog._id, {comments: blogComments});
         if(JSON.stringify(user._id) != JSON.stringify(blog.author)){
             eventEmitter.emit('sendCommentNotification', user.firstName + " " + user.lastName, blog.author, blog._id, 2);
-            if(postedComment.parentCommentId != null){
-                const parentComment = await Comment.findById(postedComment.parentCommentId);
-                console.log(postedComment.parentCommentId, parentComment)
-                eventEmitter.emit('sendCommentNotification', user.firstName + " " + user.lastName, parentComment.author.id, blog._id, 3);
-            }
+            // if(postedComment.parentCommentId != null){
+            //     const parentComment = await Comment.findById(postedComment.parentCommentId);
+            //     console.log(postedComment.parentCommentId, parentComment)
+            //     eventEmitter.emit('sendCommentNotification', user.firstName + " " + user.lastName, parentComment.author.id, blog._id, 3);
+            // }
         }        
         // sendNotificationToUser(user.firstName + " " + user.lastName, blog.author, blog._id, 2)
         return res.status(200).send(postedComment);
