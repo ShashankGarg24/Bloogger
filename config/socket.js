@@ -1,7 +1,7 @@
 var onlineUserDictionary = {}
 const app = require("../app")
 console.log(app)
-comsole.log(app.server)
+console.log(app.server)
 
 const io = require("socket.io")(app.server, {
    cors: {
