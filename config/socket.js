@@ -1,6 +1,18 @@
 var onlineUserDictionary = {}
- const app = require("../app")
- const addOnlineUser =(userId, socketId)=>{
+const app = require("../app")
+console.log(app)
+comsole.log(app.server)
+
+const io = require("socket.io")(app.server, {
+   cors: {
+     origin: "https://blooggerr.netlify.app",
+     methods: ["GET", "POST", "PATCH", "PUT", "DELETE"]
+   }
+  
+});
+
+
+const addOnlineUser =(userId, socketId)=>{
    console.log("New user added to socket")
    onlineUserDictionary[userId] = socketId
 }
@@ -12,12 +24,11 @@ const getOnlineUser =(userId)=>{
 const deleteOnlineUser =(userId)=>{
    delete onlineUserDictionary[userId]
 }
-
-app.io.on("connection", (socket) => {
+io.on("connection", (socket) => {
  socket.on("addNewOnlineUser", (userId)=>{
    addOnlineUser(userId, socket.id)
    console.log(onlineUserDictionary)
-   app.io.to(socket.id).emit("greet", "You are connected " + userId)
+   io.to(socket.id).emit("greet", "You are connected " + userId)
  })
  socket.on("disconnect", (userId)=>{
    deleteOnlineUser(userId)
@@ -29,7 +40,7 @@ app.io.on("connection", (socket) => {
 
 const sendNotificationToUser = (senderId, receiverId, blogId, type) =>{
    if(senderId, receiverId, blogId){
-       app.io.to(onlineUserDictionary[receiverId]).emit("notifications", ({senderId, blogId, type}))
+       io.to(onlineUserDictionary[receiverId]).emit("notifications", ({senderId, blogId, type}))
    }
 }
 
