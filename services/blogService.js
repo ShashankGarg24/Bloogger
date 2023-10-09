@@ -118,7 +118,9 @@ router.post('/like-unlike', jwtAuth, async(req, res)=>{
             }else{
                 userLikes.push(userId)
                 const _user = await User.findById(userId);
-                eventEmitter.emit('sendLikeNotification', _user.firstName + " " + _user.lastName, blog.author, blog._id, 1);
+                if(JSON.stringify(_user._id) != JSON.stringify(blog.author)){
+                    eventEmitter.emit('sendLikeNotification', _user.firstName + " " + _user.lastName, blog.author, blog._id, 1);
+                }                
                 // sendNotificationToUser(_user.firstName + " " + _user.lastName, blog.author, blog._id, 1)
                 message = "Blog liked"
             }
