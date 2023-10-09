@@ -56,7 +56,11 @@ const sendNotificationToUser = (senderId, receiverId, blogId, type) =>{
     }
  }
 
- blogRouting.eventEmitter.on('sendNotification', (senderId, receiverId, blogId, type) => {
+ blogRouting.eventEmitter.on('sendLikeNotification', (senderId, receiverId, blogId, type) => {
+    sendNotificationToUser(senderId, receiverId, blogId, type);
+});
+
+commentRouting.eventEmitter.on('sendCommentNotification', (senderId, receiverId, blogId, type) => {
     sendNotificationToUser(senderId, receiverId, blogId, type);
 });
 
@@ -79,4 +83,4 @@ app.use('/login', loginService)
 app.use('/blogs', blogRouting.router)
 app.use('/account', userService)
 app.use('/admin/category', categoryRouting)
-app.use('/comment', commentRouting)
+app.use('/comment', commentRouting.router)

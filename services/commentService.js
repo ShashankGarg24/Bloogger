@@ -3,9 +3,9 @@ const Blog = require('../models/Blog')
 const Comment = require('../models/Comment')
 const { jwtAuth } = require('../middlewares/jwtAuth')
 const User = require('../models/User')
-// const {sendNotificationToUser}  = require('../app')
 const router = express.Router()
-
+const events = require('events');
+const eventEmitter = new events.EventEmitter();
 
 router.get('/:blogId', async(req, res)=>{
 
@@ -51,6 +51,7 @@ router.post('/:blogId', jwtAuth, async(req, res)=>{
         var blogComments = blog.comments
         blogComments.push(postedComment);
         await Blog.findByIdAndUpdate(blog._id, {comments: blogComments});
+        eventEmitter.emit('sendCommentNotification', user.firstName + " " + user.lastName, blog.author, blog._id, 2);
         // sendNotificationToUser(user.firstName + " " + user.lastName, blog.author, blog._id, 2)
         return res.status(200).send(postedComment);
     }catch(err){
@@ -103,4 +104,4 @@ router.delete('/:blogId/:commentId', jwtAuth, async(req, res)=>{
     }
 })
 
-module.exports = router
+module.exports = {router, eventEmitter}

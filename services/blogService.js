@@ -6,7 +6,6 @@ const { getUserFromAuth, jwtAuth } = require('../middlewares/jwtAuth')
 const User = require('../models/User')
 const { extractTitleFromContent } = require('../utilities/blogUtilities')
 const { getBlogsForCardsFrom } = require('../utilities/blogUtilities')
-const {sendNotificationToUser}  = require('../app')
 const Comment = require('../models/Comment')
 const events = require('events');
 const eventEmitter = new events.EventEmitter();
@@ -119,7 +118,7 @@ router.post('/like-unlike', jwtAuth, async(req, res)=>{
             }else{
                 userLikes.push(userId)
                 const _user = await User.findById(userId);
-                eventEmitter.emit('sendNotification', _user.firstName + " " + _user.lastName, blog.author, blog._id, 1);
+                eventEmitter.emit('sendLikeNotification', _user.firstName + " " + _user.lastName, blog.author, blog._id, 1);
                 // sendNotificationToUser(_user.firstName + " " + _user.lastName, blog.author, blog._id, 1)
                 message = "Blog liked"
             }
