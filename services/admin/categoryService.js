@@ -36,6 +36,7 @@ router.get('/:id', async (req, res)=>{
                     likes: blog.likes.length,
                     readTime: blog.readingTime,
                     titleImage: titleImage,
+                    title: blog.title,
                     content: await removeImgTagsFromBlogContent(blog.blogContent),
                     // content: blog.blogContent,
                     publishedDate: blog.publishedDateTime
@@ -44,7 +45,14 @@ router.get('/:id', async (req, res)=>{
             }
           }));
 
-        blogs.sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate));
+        blogs.sort((a, b) => {
+          const getNumber = (title) => {
+            const match = title.match(/<h1>\s*(\d+)\./i);
+            return match ? parseInt(match[1], 10) : Infinity;
+          };
+        
+          return getNumber(a.title) - getNumber(b.title);
+        });
         return res.status(200).send(blogs)
     }catch(err){
         console.log(err)
