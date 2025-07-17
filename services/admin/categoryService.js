@@ -44,7 +44,7 @@ router.get('/:id', async (req, res)=>{
             }
           }));
 
-        console.log(blogs)
+        blogs.sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate));
         return res.status(200).send(blogs)
     }catch(err){
         console.log(err)
