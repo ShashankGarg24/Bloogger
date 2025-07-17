@@ -36,7 +36,7 @@ router.get('/:id', async (req, res)=>{
                     likes: blog.likes.length,
                     readTime: blog.readingTime,
                     titleImage: titleImage,
-                    title: blog.title,
+                    title: blog.blogTitle,
                     content: await removeImgTagsFromBlogContent(blog.blogContent),
                     // content: blog.blogContent,
                     publishedDate: blog.publishedDateTime
