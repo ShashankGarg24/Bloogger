@@ -15,10 +15,10 @@ const router = express.Router()
 
 router.get('/', async(req, res)=>{
     try{
-        const blogs = await Blog.find({ createdOn: { $lte: req.createdOnBefore } } )
-         .limit( 1 )
-         .sort( 'createdOn' )
-        // const blogs = await Blog.find()
+        // const blogs = await Blog.find({ createdOn: { $lte: req.createdOnBefore } } )
+        //  .limit( 1 )
+        //  .sort( 'createdOn' )
+        const blogs = await Blog.find()
         res.status(200).json(blogs)
     }catch(err){
         res.status(400).send("Error in fetching blogs")
